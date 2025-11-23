@@ -16,8 +16,8 @@ public class DataStorage {
     
     // Configuración de MySQL
     private static final String DB_URL = "jdbc:mysql://localhost:3306/petfeeder";
-    private static final String DB_USER = "root";  // Cambia esto
-    private static final String DB_PASSWORD = "tu_password";  // Cambia esto
+    private static final String DB_USER = "petfeeder";  // Cambia esto
+    private static final String DB_PASSWORD = "petfeeder";  // Cambia esto
     
     public DataStorage(String filename) {  // filename ya no se usa, pero mantenemos firma
         connectToDatabase();

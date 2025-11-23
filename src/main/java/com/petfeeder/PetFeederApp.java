@@ -10,14 +10,16 @@ public class PetFeederApp {
         System.out.println("=================================\n");
         
         // Configuración
-        String brokerUrl = "tcp://192.168.1.20:1883";  // Tu IP
+        String brokerUrl = "tcp://10.21.37.61:1883";  // Tu IP
         String clientId = "PetFeederJavaApp";
+        String n8nIp = "10.21.37.61";
         
         try {
             // Inicializar componentes
+            N8nNotifier n8n = new N8nNotifier(n8nIp);
             DataStorage storage = new DataStorage("petfeeder_data.json");
             FeedingData scheduler = new FeedingData(storage);
-            MQTTManager mqttManager = new MQTTManager(brokerUrl, clientId, storage, scheduler);
+            MQTTManager mqttManager = new MQTTManager(brokerUrl, clientId, storage, scheduler, n8n);
 
             // Conectar a MQTT
             mqttManager.connect();

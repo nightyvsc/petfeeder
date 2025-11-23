@@ -9,7 +9,8 @@ public class MQTTManager {
     private String brokerUrl;
     private String clientId;
     private DataStorage storage;
-    private FeedingScheduler scheduler;
+    private FeedingData scheduler;
+    private N8nNotifier n8n;
     
     // Tópicos
     private static final String TOPIC_BOWL = "petfeeder/sensors/bowl";
@@ -17,11 +18,12 @@ public class MQTTManager {
     private static final String TOPIC_ACTUATOR_STATUS = "petfeeder/actuator/status";
     private static final String TOPIC_FEED_COMMAND = "petfeeder/commands/feed";
     
-    public MQTTManager(String brokerUrl, String clientId, DataStorage storage, FeedingScheduler scheduler) {
+    public MQTTManager(String brokerUrl, String clientId, DataStorage storage, FeedingData scheduler, N8nNotifier n8n) {
         this.brokerUrl = brokerUrl;
         this.clientId = clientId;
         this.storage = storage;
         this.scheduler = scheduler;
+        this.n8n = n8n;
     }
     
     public void connect() throws MqttException {
@@ -90,9 +92,6 @@ public class MQTTManager {
                     break;
             }
             
-            // Verificar si es hora de alimentar
-            checkFeedingSchedule();
-            
         } catch (Exception e) {
             System.err.println("Error procesando mensaje: " + e.getMessage());
         }
@@ -108,6 +107,7 @@ public class MQTTManager {
         if (status.equals("empty") && storage.wasPreviouslyFull()) {
             System.out.println("  🐕 La mascota ha comido!");
             scheduler.recordEatingEvent();
+            n8n.notificarMascotaComio();
         }
         
         storage.updateBowlHistory(status);
@@ -122,6 +122,7 @@ public class MQTTManager {
         // Alerta si nivel bajo
         if (status.equals("low")) {
             System.out.println("  ⚠ ALERTA: Nivel de hopper bajo (" + level + "%)");
+            n8n.alertaHopperBajo(level);
         }
     }
     
@@ -131,6 +132,10 @@ public class MQTTManager {
         if (action.equals("feed_completed")) {
             System.out.println("  ✓ Alimentación completada");
             scheduler.recordFeedingEvent();
+            
+            String estadoBowl = storage.getLastBowlStatus();
+            int nivelHopper = storage.getLastHopperLevel();
+            n8n.notificarAlimentacion(estadoBowl, nivelHopper); 
         }
     }
     
