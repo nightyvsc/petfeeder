@@ -10,9 +10,9 @@ public class PetFeederApp {
         System.out.println("=================================\n");
         
         // Configuración
-        String brokerUrl = "tcp://10.21.37.61:1883";  // Tu IP
+        String brokerUrl = "tcp://10.62.69.61:1883";  // Tu IP
         String clientId = "PetFeederJavaApp";
-        String n8nIp = "10.21.37.61";
+        String n8nIp = "10.62.69.61";
         
         try {
             // Inicializar componentes

@@ -13,6 +13,7 @@ public class DataStorage {
     private String lastBowlStatus = "unknown";
     private String previousBowlStatus = "unknown";
     private int lastHopperLevel = 0;
+    private boolean hopperAlertSent = false;  // AGREGAR
     
     // Configuración de MySQL
     private static final String DB_URL = "jdbc:mysql://localhost:3306/petfeeder";
@@ -108,5 +109,15 @@ public class DataStorage {
         } catch (SQLException e) {
             System.err.println("Error cerrando conexión: " + e.getMessage());
         }
+    }
+    public boolean shouldSendHopperAlert(int level) {
+    	if (level < 20 && !hopperAlertSent) {
+           hopperAlertSent = true;
+           return true;  // Enviar alerta
+	 }
+	else if (level >= 20) {
+       	   hopperAlertSent = false;  // Reset cuando sube de nivel
+    	}
+    	return false;  // No enviar
     }
 }

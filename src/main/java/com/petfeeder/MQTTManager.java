@@ -120,10 +120,10 @@ public class MQTTManager {
         storage.setLastHopperLevel(level);
         
         // Alerta si nivel bajo
-        if (status.equals("low")) {
-            System.out.println("  ⚠ ALERTA: Nivel de hopper bajo (" + level + "%)");
-            n8n.alertaHopperBajo(level);
-        }
+        if (storage.shouldSendHopperAlert(level)) {
+         	System.out.println("  ⚠ ALERTA: Nivel de hopper bajo (" + level + "%)");
+        	n8n.alertaHopperBajo(level);
+   	 }
     }
     
     private void processActuatorStatus(JSONObject data) {
@@ -163,6 +163,10 @@ public class MQTTManager {
             message.setQos(1);
             client.publish(TOPIC_FEED_COMMAND, message);
             System.out.println("  → Comando FEED enviado");
+	   
+	    String estadoBowl = storage.getLastBowlStatus();
+       	    int nivelHopper = storage.getLastHopperLevel();
+            n8n.notificarAlimentacion(estadoBowl, nivelHopper);
         } catch (MqttException e) {
             System.err.println("Error enviando comando: " + e.getMessage());
         }
